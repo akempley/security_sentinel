@@ -1,0 +1,1 @@
+source ~/Desktop/GitHub/"Security Sentinel -IT135"/.bashrc

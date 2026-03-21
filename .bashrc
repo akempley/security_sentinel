@@ -1,35 +1,49 @@
-# ~/.bashrc
+# =================================================================
+# Master Config: Shared between Bash and Zsh
+# Location: ~/Desktop/GitHub/Security Sentinel -IT135/.bashrc
+# =================================================================
 
-# Enable colorful ls and grep output
+# --- 1. Environment & Colors ---
 export CLICOLOR=1
 export LS_COLORS='di=34:fi=0:ln=35:pi=33:so=32:bd=46:cd=43:ex=31'
+alias grep='grep --color=auto'
 
-# Helpful aliases
+# --- 2. Helpful Aliases ---
 alias ll='ls -alF'
 alias la='ls -A'
 alias ..='cd ..'
 alias cls='clear'
 
-# Enable color for grep
-alias grep='grep --color=auto'
-
-# Make prompt user-friendly
-PS1='\[\e[32m\]\u@\h\[\e[m\]:\[\e[34m\]\w\[\e[m\]\$ '
-
-#Google from the command line
+# --- 3. The "Google" Function ---
 google() {
-    search=""
+    local search=""
     for i in "$@"; do
         search="$search%20$i"
     done
-    echo "Searching Google for: $@"
-    # Works for WSL, Linux (xdg-open), or macOS (open)
-    xdg-open "http://www.google.com/search?q=$search" 2>/dev/null || open "http://www.google.com/search?q=$search"
+    echo "Searching Google for: $*"
+    open "http://www.google.com/search?q=$search" 2>/dev/null || xdg-open "http://www.google.com/search?q=$search"
 }
 
-# Only add to PATH if it isn't already there
-if [[ ":$PATH:" != *":$(pwd)/bin:"* ]]; then
-    export PATH="$PATH:$(pwd)/bin"
+# --- 4. Path & Project Helpers ---
+# Use the absolute path so it works from ANY directory
+PROJECT_ROOT="$HOME/Desktop/GitHub/Security Sentinel -IT135"
+
+# Add your project bin to the PATH securely
+case ":$PATH:" in
+    *":$PROJECT_ROOT/bin:"*) ;;
+    *) export PATH="$PATH:$PROJECT_ROOT/bin" ;;
+esac
+
+# Source your git helper script
+if [ -f "$PROJECT_ROOT/bin/repo.sh" ]; then
+    source "$PROJECT_ROOT/bin/repo.sh"
 fi
 
-./bin/repo.sh
+# --- 5. Cross-Shell Prompt Logic ---
+if [ -n "$ZSH_VERSION" ]; then
+    # Zsh specific prompt (uses % instead of \)
+    PROMPT='%F{green}%n@%m%f:%F{blue}%~%f$ '
+elif [ -n "$BASH_VERSION" ]; then
+    # Bash specific prompt
+    export PS1="\[\e[32m\]\u@\h\[\e[m\]:\[\e[34m\]\w\[\e[m\]\$ "
+fi
